@@ -1,0 +1,481 @@
+inde<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agri-Gaming & Mega Quiz Hub</title>
+    <style>
+        /* Basic & Dark Mode Styling */
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f9f4; color: #333; line-height: 1.6; transition: background 0.3s, color 0.3s; }
+        body.dark-mode { background-color: #121212; color: #e0e0e0; }
+        .dark-mode .container { background-color: #1e1e1e; box-shadow: 0 4px 8px rgba(255,255,255,0.1); }
+        .dark-mode #game-section, .dark-mode #quiz-container, .dark-mode #quiz-setup { background-color: #2c2c2c; border-color: #444; color: #e0e0e0; }
+        .dark-mode h2 { color: #81c784; }
+        .dark-mode .option-btn { background-color: #424242; color: #fff; border-color: #666; }
+
+        /* General UI */
+        header { background-color: #2e7d32; color: white; padding: 20px; text-align: center; position: relative; }
+        #theme-toggle { position: absolute; top: 20px; right: 20px; background: #ffeb3b; color: #333; border: none; padding: 8px 15px; border-radius: 20px; font-weight: bold; cursor: pointer; }
+        .notice-board { background-color: #d32f2f; color: white; padding: 8px; font-weight: bold; font-size: 15px; }
+        nav { background-color: #1b5e20; display: flex; justify-content: center; flex-wrap: wrap; }
+        nav button { background: none; border: none; color: white; padding: 12px 15px; font-size: 15px; font-weight: bold; cursor: pointer; }
+        nav button:hover, nav button.active { background-color: #4caf50; }
+        .container { max-width: 800px; margin: 20px auto; padding: 20px; background: white; border-radius: 8px; box-shadow: 0 4px 8px rgba(0,0,0,0.1); }
+        .page-content { display: none; }
+        .page-content.active { display: block; animation: fadeIn 0.5s ease-in; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        h2 { color: #2e7d32; border-bottom: 2px solid #4CAF50; padding-bottom: 5px; margin-bottom: 15px; }
+        .ad-space { background-color: #e0e0e0; border: 2px dashed #9e9e9e; text-align: center; padding: 20px; margin: 20px 0; font-weight: bold; color: #757575; }
+
+        /* Welcome Screen */
+        #welcome-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(27, 94, 32, 0.95); display: flex; justify-content: center; align-items: center; z-index: 1000; }
+        .login-box { background-color: white; padding: 40px 30px; border-radius: 15px; text-align: center; width: 90%; max-width: 400px; animation: zoomIn 0.8s ease-out; }
+        @keyframes zoomIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+        .login-box h2 { color: #2e7d32; margin-bottom: 20px; }
+        .login-box input { width: 100%; padding: 12px; margin-bottom: 15px; border: 2px solid #c8e6c9; border-radius: 8px; font-size: 16px; outline: none; }
+        .start-btn { background-color: #ff9800; color: white; font-size: 18px; font-weight: bold; padding: 12px 30px; border: none; border-radius: 8px; cursor: pointer; width: 100%; transition: 0.3s; }
+        .start-btn:hover { background-color: #e65100; }
+
+        /* Exam Countdown */
+        #countdown-box { background: linear-gradient(135deg, #1b5e20, #4caf50); color: white; padding: 20px; border-radius: 10px; text-align: center; margin-bottom: 20px; }
+        .timer-display { display: flex; justify-content: center; gap: 15px; margin-top: 10px; font-size: 24px; font-weight: bold; }
+        .time-block { display: flex; flex-direction: column; background: rgba(255,255,255,0.2); padding: 10px; border-radius: 8px; min-width: 70px; }
+        .time-label { font-size: 12px; text-transform: uppercase; margin-top: 5px; }
+
+        /* Game Styling */
+        #game-section { text-align: center; padding: 20px; background: #e8f5e9; border-radius: 10px; border: 2px solid #c8e6c9; margin-bottom: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; max-width: 300px; margin: 15px auto; background-color: #795548; padding: 10px; border-radius: 10px; }
+        .hole { width: 100%; aspect-ratio: 1 / 1; background-color: #8D6E63; border-radius: 5px; display: flex; justify-content: center; align-items: center; font-size: 45px; cursor: crosshair; user-select: none; }
+        #start-game-btn { background-color: #4CAF50; color: white; font-size: 18px; padding: 10px 20px; border: none; border-radius: 50px; cursor: pointer; }
+
+        /* Quiz Setup & Styling */
+        #quiz-setup { background: #e8f5e9; padding: 20px; border-radius: 10px; border: 2px solid #4CAF50; text-align: center; margin-bottom: 20px; }
+        #question-limit { padding: 10px; font-size: 16px; border-radius: 5px; border: 1px solid #ccc; margin: 10px 0; width: 80%; max-width: 300px; }
+        #start-quiz-btn { background: #4CAF50; color: white; padding: 12px 25px; border: none; border-radius: 50px; font-size: 18px; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        #start-quiz-btn:hover { background: #388E3C; transform: scale(1.05); }
+        
+        #quiz-container { background: #f9fbe7; padding: 20px; border-radius: 10px; border: 2px solid #cddc39; text-align: center; }
+        #question-text { font-size: 18px; font-weight: bold; margin-bottom: 20px; }
+        .options-grid { display: flex; flex-direction: column; gap: 10px; margin-bottom: 20px; }
+        .option-btn { background: white; border: 2px solid #ccc; padding: 12px; border-radius: 8px; font-size: 16px; cursor: pointer; text-align: left; transition: 0.2s; }
+        .option-btn:hover { background: #e0f7fa; }
+        .option-btn.correct { background: #c8e6c9 !important; border-color: #4CAF50 !important; color: #2e7d32; }
+        .option-btn.wrong { background: #ffcdd2 !important; border-color: #f44336 !important; color: #c62828; }
+        #next-btn { background: #ff9800; color: white; padding: 10px 20px; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; cursor: pointer; display: none; margin: 0 auto; }
+        #quiz-score { font-size: 20px; font-weight: bold; color: #2e7d32; margin-top: 15px; }
+
+        /* ==================================
+           NEW: FLOATING SHARE BUTTON CSS
+           ================================== */
+        #share-fab {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #25D366; /* WhatsApp Green Color */
+            color: white;
+            border: none;
+            border-radius: 50px;
+            padding: 15px 20px;
+            font-size: 16px;
+            font-weight: bold;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            cursor: pointer;
+            z-index: 999;
+            transition: 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #share-fab:hover { background-color: #1EBE5D; transform: scale(1.05); }
+
+    </style>
+</head>
+<body>
+
+    <div id="welcome-screen">
+        <div class="login-box">
+            <h2 style="color: #2e7d32;">🌾 Agri-Gaming Hub</h2>
+            <p style="margin-bottom: 15px; color: #555;">Khelne aur Padhne ke liye detail dalein</p>
+            <input type="text" id="playerName" placeholder="Apna Naam Likhein" required>
+            <input type="email" id="playerEmail" placeholder="Apni Gmail ID Likhein" required>
+            <button class="start-btn" onclick="enterWebsite()">Start Website</button>
+        </div>
+    </div>
+
+    <header>
+        <h1>🌾 Agri-Gaming & Mega Quiz Hub</h1>
+        <p>Manoranjan aur Padhai Ek Saath</p>
+        <button id="theme-toggle" onclick="toggleTheme()">🌙 Night Mode</button>
+    </header>
+
+    <div class="notice-board">
+        <marquee behavior="scroll" direction="left">
+            📢 <b>Today's Update:</b> 100+ Important JET/ICAR Questions add kiye gaye hain. Roz practice karein और अपने दोस्तों के साथ शेयर करें!
+        </marquee>
+    </div>
+
+    <nav>
+        <button class="menu-btn active" onclick="changePage('home')">🏠 Home (Timer)</button>
+        <button class="menu-btn" onclick="changePage('game')">🎮 Game</button>
+        <button class="menu-btn" onclick="changePage('quiz')">📝 Smart Quiz</button>
+        <button class="menu-btn" onclick="changePage('notes')">📚 Krishi Notes</button>
+    </nav>
+
+    <div class="container">
+
+        <div id="home" class="page-content active">
+            <h2 style="text-align: center; border: none;" id="player-greeting">Kisan Hub Mein Swagat Hai!</h2>
+            <div id="countdown-box">
+                <h3>⏳ JET / ICAR 2026 Target</h3>
+                <div class="timer-display">
+                    <div class="time-block"><span id="days">00</span><span class="time-label">Din</span></div>
+                    <div class="time-block"><span id="hours">00</span><span class="time-label">Ghante</span></div>
+                    <div class="time-block"><span id="minutes">00</span><span class="time-label">Min</span></div>
+                    <div class="time-block"><span id="seconds">00</span><span class="time-label">Sec</span></div>
+                </div>
+            </div>
+            <div class="ad-space">[Google AdSense Ad Slot - Home Banner]</div>
+            <p>Smart Quiz tab par click karein aur अपनी entrance exam ki taiyari shuru karein! नीचे दिए गए हरे बटन से वेबसाइट को शेयर जरूर करें।</p>
+        </div>
+
+        <div id="game" class="page-content">
+            <div id="game-section">
+                <h3 style="color: #2e7d32; margin-bottom: 10px;">टिड्डा भगाओ - Save the Crops! 🦗</h3>
+                <div style="font-weight: bold; color: #d84315; margin-bottom: 10px;">
+                    Score: <span id="game-score-display">0</span> | Time: <span id="time-left">30</span>s
+                </div>
+                <div class="grid">
+                    <div class="hole" id="1"></div><div class="hole" id="2"></div><div class="hole" id="3"></div>
+                    <div class="hole" id="4"></div><div class="hole" id="5"></div><div class="hole" id="6"></div>
+                    <div class="hole" id="7"></div><div class="hole" id="8"></div><div class="hole" id="9"></div>
+                </div>
+                <button id="start-game-btn" onclick="startTiddhaGame()">🎮 Game Shuru Karein</button>
+            </div>
+            <div class="ad-space">[Google AdSense Ad Slot - Game Page]</div>
+        </div>
+
+        <div id="quiz" class="page-content">
+            <h2>📝 JET / ICAR Custom Quiz</h2>
+            
+            <div id="quiz-setup">
+                <h3>आप कितने सवालों का टेस्ट देना चाहते हैं?</h3>
+                <select id="question-limit">
+                    <option value="10">10 Questions (छोटा टेस्ट)</option>
+                    <option value="20">20 Questions (मीडियम टेस्ट)</option>
+                    <option value="50">50 Questions (बड़ा टेस्ट)</option>
+                    <option value="100">100 Questions (मेगा टेस्ट)</option>
+                </select>
+                <br>
+                <button id="start-quiz-btn" onclick="startCustomQuiz()">🚀 क्विज़ शुरू करें</button>
+            </div>
+
+            <div id="quiz-container" style="display: none;">
+                <p id="question-count" style="color: #555; font-weight: bold;">Question: 1</p>
+                <div id="question-text">Loading question...</div>
+                
+                <div class="options-grid" id="options-box">
+                    </div>
+                
+                <button id="next-btn" onclick="nextQuestion()">अगला सवाल ➡️</button>
+                <div id="quiz-score">Score: 0</div>
+            </div>
+
+            <div class="ad-space">[Google AdSense Ad Slot - Quiz Section]</div>
+        </div>
+
+        <div id="notes" class="page-content">
+            <h2>शस्य विज्ञान और मृदा रसायन</h2>
+            <p>अच्छी फसल के लिए यह बहुत जरूरी है कि खेत में खरपतवार न हों। मृदा रसायन के अंतर्गत हम मिट्टी के pH मान और उसमें मौजूद पोषक तत्वों का अध्ययन करते हैं। पेडोलोजी (Pedology) मिट्टी के निर्माण को समझने में मदद करती है।</p>
+            <h2>पशुपालन प्रबंधन</h2>
+            <p>गायों में साहीवाल और थारपारकर देसी नस्लें हैं। भैंसों में मुर्रा (Murrah) दूध के लिए सर्वश्रेष्ठ है। रेगिस्तानी क्षेत्रों में बीकानेरी ऊंट बोझा ढोने के लिए प्रसिद्ध है, जबकि जैसलमेरी ऊंट तेज दौड़ने के लिए जाना जाता है।</p>
+            <div class="ad-space">[Google AdSense Ad Slot - Notes Page]</div>
+        </div>
+
+    </div>
+
+    <button id="share-fab" onclick="shareWebsite()">📲 Share Karein</button>
+
+
+    <script>
+        // --- 1. Welcome Screen & Theme ---
+        function enterWebsite() {
+            let nameInput = document.getElementById("playerName").value;
+            if (nameInput === "") { alert("Kripya apna naam bharein!"); return; }
+            document.getElementById("welcome-screen").style.display = "none";
+            document.getElementById("player-greeting").innerHTML = nameInput + ", apni taiyari shuru karein 📚";
+        }
+
+        function toggleTheme() {
+            document.body.classList.toggle("dark-mode");
+            let btn = document.getElementById("theme-toggle");
+            btn.innerHTML = document.body.classList.contains("dark-mode") ? "☀️ Day Mode" : "🌙 Night Mode";
+            btn.style.background = document.body.classList.contains("dark-mode") ? "#fff" : "#ffeb3b";
+        }
+
+        function changePage(pageId) {
+            document.querySelectorAll(".page-content").forEach(p => p.classList.remove("active"));
+            document.querySelectorAll(".menu-btn").forEach(b => b.classList.remove("active"));
+            document.getElementById(pageId).classList.add("active");
+            event.currentTarget.classList.add("active");
+        }
+
+        // --- 2. Exam Countdown ---
+        const targetDate = new Date("May 14, 2026 09:00:00").getTime();
+        setInterval(function() {
+            let now = new Date().getTime();
+            let distance = targetDate - now;
+            if (distance > 0) {
+                document.getElementById("days").innerText = Math.floor(distance / (1000 * 60 * 60 * 24));
+                document.getElementById("hours").innerText = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                document.getElementById("minutes").innerText = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                document.getElementById("seconds").innerText = Math.floor((distance % (1000 * 60)) / 1000);
+            }
+        }, 1000);
+
+        // --- 3. Game Logic (Tiddha Bhagao) ---
+        const holes = document.querySelectorAll('.hole');
+        const gameScoreDisplay = document.getElementById('game-score-display');
+        const timeLeftDisplay = document.getElementById('time-left');
+        const startGameBtn = document.getElementById('start-game-btn');
+        let gameResult = 0, hitPosition = null, currentTime = 30, timerId = null, countDownTimerId = null, isGameRunning = false;
+
+        function randomSquare() {
+            holes.forEach(hole => hole.innerHTML = '');
+            let randomHole = holes[Math.floor(Math.random() * 9)];
+            randomHole.innerHTML = '🦗'; hitPosition = randomHole.id;
+        }
+
+        holes.forEach(hole => {
+            hole.addEventListener('mousedown', () => {
+                if (isGameRunning && hole.id == hitPosition) {
+                    gameResult++; gameScoreDisplay.textContent = gameResult; hole.innerHTML = '💥'; hitPosition = null;
+                }
+            })
+        });
+
+        function countDown() {
+            currentTime--; timeLeftDisplay.textContent = currentTime;
+            if (currentTime == 0) {
+                clearInterval(countDownTimerId); clearInterval(timerId); isGameRunning = false;
+                startGameBtn.style.display = "inline-block"; startGameBtn.innerText = "Fir se khele!";
+                alert("Time Up! Aapka score: " + gameResult); holes.forEach(hole => hole.innerHTML = '');
+            }
+        }
+
+        function startTiddhaGame() {
+            gameResult = 0; currentTime = 30; gameScoreDisplay.textContent = gameResult; timeLeftDisplay.textContent = currentTime;
+            isGameRunning = true; startGameBtn.style.display = "none";
+            timerId = setInterval(randomSquare, 650); countDownTimerId = setInterval(countDown, 1000);
+        }
+
+        // --- 4. MEGA QUIZ DATA (100 Questions) ---
+        const quizData = [
+            { question: "टिड्डे (Grasshopper) के मुखांग (Mouthparts) किस प्रकार के होते हैं?", options: ["चुभने और चूसने वाले", "काटने और चबाने वाले", "स्पंजिंग प्रकार के", "चाटने वाले"], correct: 1 },
+            { question: "भैंस की कौनसी नस्ल दूध उत्पादन के लिए सर्वश्रेष्ठ मानी जाती है?", options: ["सूरती", "जाफराबादी", "मुर्रा (Murrah)", "भदावरी"], correct: 2 },
+            { question: "मिट्टी के निर्माण और उसके वर्गीकरण के अध्ययन को क्या कहते हैं?", options: ["एग्रोनॉमी", "पेडोलोजी (Pedology)", "एंटोमोलोजी", "पोमोलोजी"], correct: 1 },
+            { question: "राजस्थान में कृषि विश्वविद्यालयों में प्रवेश के लिए कौनसी परीक्षा होती है?", options: ["NEET", "JEE", "JET", "CAT"], correct: 2 },
+            { question: "ऊंट की कौनसी नस्ल बोझा ढोने के लिए सबसे अधिक प्रसिद्ध है?", options: ["बीकानेरी", "जैसलमेरी", "मेवाती", "मारवाड़ी"], correct: 0 },
+            { question: "खरपतवार (Weeds) को नष्ट करने के लिए किस रसायन का प्रयोग किया जाता है?", options: ["कीटनाशी", "शाकनाशी (Herbicides)", "कवकनाशी", "उर्वरक"], correct: 1 },
+            { question: "सामान्य (उदासीन) मिट्टी का pH मान कितना होता है?", options: ["5.0", "7.0", "9.0", "14.0"], correct: 1 },
+            { question: "सवारी और तेज दौड़ने के लिए ऊंट की कौनसी नस्ल जानी जाती है?", options: ["बीकानेरी", "जैसलमेरी", "कच्छी", "सिंधी"], correct: 1 },
+            { question: "निम्न में से कौनसी गाय की एक उत्तम देसी नस्ल है?", options: ["जर्सी", "होल्स्टीन", "साहीवाल", "ब्राउन स्विस"], correct: 2 },
+            { question: "पौधों की वृद्धि के लिए सबसे आवश्यक प्राथमिक पोषक तत्व कौन सा है?", options: ["नाइट्रोजन", "आयरन", "जिंक", "कॉपर"], correct: 0 },
+            { question: "भारतीय मृदाओं में सामान्यतः किस तत्व की भारी कमी पाई जाती है?", options: ["नाइट्रोजन", "फास्फोरस", "पोटाश", "कैल्शियम"], correct: 0 },
+            { question: "अम्लीय मृदा को सुधारने के लिए किसका प्रयोग किया जाता है?", options: ["चूना (Lime)", "जिप्सम", "यूरिया", "पोटाश"], correct: 0 },
+            { question: "क्षारीय मृदा को सुधारने के लिए खेतों में क्या मिलाया जाता है?", options: ["चूना", "जिप्सम (Gypsum)", "नमक", "रेत"], correct: 1 },
+            { question: "काली मिट्टी किस फसल के लिए सर्वाधिक उपयुक्त है?", options: ["गेहूं", "कपास", "मक्का", "बाजरा"], correct: 1 },
+            { question: "यूरिया में नाइट्रोजन की मात्रा कितने प्रतिशत होती है?", options: ["20%", "30%", "46%", "60%"], correct: 2 },
+            { question: "पौधों में क्लोरोफिल निर्माण के लिए कौन सा तत्व आवश्यक है?", options: ["मैग्नीशियम", "जिंक", "बोरॉन", "कॉपर"], correct: 0 },
+            { question: "वर्मीकम्पोस्ट तैयार करने में लगभग कितना समय लगता है?", options: ["10-15 दिन", "45-60 दिन", "6 महीने", "1 साल"], correct: 1 },
+            { question: "राजस्थान में सर्वाधिक कौनसी मिट्टी पाई जाती है?", options: ["काली मिट्टी", "लाल मिट्टी", "रेतीली/बलुई मिट्टी", "जलोढ़ मिट्टी"], correct: 2 },
+            { question: "मृदा में कार्बनिक पदार्थ की मात्रा बढ़ाने के लिए क्या करना चाहिए?", options: ["हरी खाद का प्रयोग", "यूरिया डालना", "कीटनाशक छिड़कना", "अत्यधिक सिंचाई"], correct: 0 },
+            { question: "DAP उर्वरक में फास्फोरस (P2O5) की प्रतिशत मात्रा होती है?", options: ["18%", "46%", "60%", "20%"], correct: 1 },
+            { question: "गेहूं की फसल का सबसे प्रमुख खरपतवार कौन सा है?", options: ["मोथा", "बथुआ", "गेहूंसा/गुल्ली डंडा", "गाजर घास"], correct: 2 },
+            { question: "2,4-D का प्रयोग मुख्य रूप से किन खरपतवारों को नष्ट करने के लिए होता है?", options: ["चौड़ी पत्ती वाले", "संकरी पत्ती वाले", "दोनों", "जलीय खरपतवार"], correct: 0 },
+            { question: "बाजरा का वानस्पतिक नाम क्या है?", options: ["पेनिसेटम ग्लौकम", "ट्रिटिकम एस्टिवम", "ओराइजा सैटाइवा", "जिया मेज"], correct: 0 },
+            { question: "दालों की जड़ों में कौन सा जीवाणु नाइट्रोजन स्थिरीकरण करता है?", options: ["एजोटोबैक्टर", "राइजोबियम", "क्लॉस्ट्रिडियम", "स्यूडोमोनास"], correct: 1 },
+            { question: "बीज की बुवाई से पहले बीजोपचार क्यों किया जाता है?", options: ["बीज को सुंदर बनाने", "बीमारियों और कीटों से बचाने", "रंग बदलने", "आकार बढ़ाने"], correct: 1 },
+            { question: "मक्का की फसल में सिंचाई की सबसे क्रांतिक अवस्था कौनसी है?", options: ["टेसलिंग अवस्था", "अंकुरण के समय", "कटाई के समय", "पकते समय"], correct: 0 },
+            { question: "'पूसा रूबी' किसकी एक उन्नत किस्म है?", options: ["बैंगन", "टमाटर", "मिर्च", "आलू"], correct: 1 },
+            { question: "ड्रिप सिंचाई सबसे अधिक उपयोगी है?", options: ["धान के खेत में", "गेहूं में", "फलदार बगीचों में", "गन्ने में"], correct: 2 },
+            { question: "राजस्थान की मुख्य खरीफ फसल कौनसी है?", options: ["गेहूं", "चना", "सरसों", "बाजरा"], correct: 3 },
+            { question: "खरपतवार नियंत्रण की जैविक विधि में किसका उपयोग होता है?", options: ["रसायन", "ट्रैक्टर", "मित्र कीट", "हाथ से उखाड़ना"], correct: 2 },
+            { question: "भारत में गाय की सबसे भारी नस्ल कौनसी है?", options: ["कांकरेज", "साहीवाल", "गिर", "नागौरी"], correct: 0 },
+            { question: "गाय के दूध का हल्का पीला रंग किसके कारण होता है?", options: ["कैरोटीन", "केसिन", "लैक्टोज", "कैल्शियम"], correct: 0 },
+            { question: "थारपारकर गाय का मूल स्थान कौन सा है?", options: ["पंजाब", "गुजरात", "सिंध प्रांत (पाकिस्तान)", "हरियाणा"], correct: 2 },
+            { question: "गाय की किस नस्ल को 'राजस्थान की कामधेनु' कहा जाता है?", options: ["राठी", "थारपारकर", "कांकरेज", "साहीवाल"], correct: 0 },
+            { question: "गाय में गर्भकाल लगभग कितने दिन का होता है?", options: ["280-285 दिन", "310 दिन", "150 दिन", "400 दिन"], correct: 0 },
+            { question: "दूध उतारने के लिए कौनसा हार्मोन जिम्मेदार है?", options: ["ऑक्सीटोसिन", "एड्रेनालाईन", "प्रोलैक्टिन", "एस्ट्रोजन"], correct: 0 },
+            { question: "नवजात बछड़े को जन्म के तुरंत बाद क्या पिलाना चाहिए?", options: ["पानी", "खीस (Colostrum)", "चाय", "सामान्य दूध"], correct: 1 },
+            { question: "खुरपका-मुंहपका (FMD) रोग किसके कारण होता है?", options: ["जीवाणु", "विषाणु (Virus)", "कवक", "परजीवी"], correct: 1 },
+            { question: "गिर गाय का उत्पत्ति स्थान कौन सा राज्य है?", options: ["राजस्थान", "पंजाब", "गुजरात (काठियावाड़)", "महाराष्ट्र"], correct: 2 },
+            { question: "साहीवाल गाय की मुख्य विशेषता क्या है?", options: ["मीठा दूध और ढीली त्वचा", "तेज दौड़ना", "अधिक भार ढोना", "सींग न होना"], correct: 0 },
+            { question: "भैंस के दूध में औसतन वसा की मात्रा कितनी होती है?", options: ["3-4%", "6-7%", "10-12%", "1-2%"], correct: 1 },
+            { question: "भैंस की किस नस्ल के सींग 'हंसिया के आकार' के होते हैं?", options: ["मुर्रा", "जाफराबादी", "सूरती", "भदावरी"], correct: 2 },
+            { question: "सबसे अधिक दूध देने वाली भैंस की नस्ल कौनसी है?", options: ["नीली रावी", "जाफराबादी", "मुर्रा", "मेहसाना"], correct: 2 },
+            { question: "भैंस की भदावरी नस्ल के दूध में वसा प्रतिशत सबसे अधिक होता है, वह कितना है?", options: ["8%", "10%", "12-14%", "18%"], correct: 2 },
+            { question: "नीली-रावी भैंस की मुख्य पहचान क्या है?", options: ["लाल रंग", "माथे, पैर और पूंछ पर सफेद निशान", "सींग बहुत लंबे", "छोटा कद"], correct: 1 },
+            { question: "भैंस में यौवनारम्भ की उम्र सामान्यतः कितनी होती है?", options: ["10-12 माह", "24-30 माह", "5 साल", "6 माह"], correct: 1 },
+            { question: "भैंस का गर्भकाल कितने दिनों का होता है?", options: ["280 दिन", "310 दिन", "340 दिन", "365 दिन"], correct: 1 },
+            { question: "जाफराबादी भैंस का मूल स्थान कहाँ है?", options: ["काठियावाड़ (गुजरात)", "रोहतक (हरियाणा)", "जयपुर (राजस्थान)", "आगरा (यूपी)"], correct: 0 },
+            { question: "'मिनी एलिफेंट' किस भैंस की नस्ल को कहा जाता है?", options: ["मुर्रा", "भदावरी", "जाफराबादी", "सूरती"], correct: 2 },
+            { question: "भैंस की मेहसाना नस्ल किन दो नस्लों का संकरण है?", options: ["मुर्रा x सूरती", "जाफराबादी x मुर्रा", "भदावरी x सूरती", "नीली रावी x मुर्रा"], correct: 0 },
+            { question: "ऊंट के कूबड़ में मुख्य रूप से क्या संचित रहता है?", options: ["पानी", "वसा (Fat)", "प्रोटीन", "कार्बोहाइड्रेट"], correct: 1 },
+            { question: "बीकानेरी ऊंट का मुख्य उपयोग क्या है?", options: ["दूध उत्पादन", "दौड़ना", "बोझा ढोना और कृषि कार्य", "मांस"], correct: 2 },
+            { question: "एक कूबड़ वाले ऊंट का वैज्ञानिक नाम क्या है?", options: ["बोस इंडिकस", "कैमेलस ड्रोमेडेरियस", "कैमेलस बैक्ट्रिएनस", "बुबेलस बुबेलिस"], correct: 1 },
+            { question: "ऊंट के शरीर का तापमान किस समय सबसे कम होता है?", options: ["दोपहर में", "शाम को", "सुबह के समय", "रात 12 बजे"], correct: 2 },
+            { question: "जैसलमेरी ऊंट की क्या विशेषता है?", options: ["भारी शरीर", "हल्का शरीर और तेज दौड़ना", "अधिक दूध देना", "छोटे पैर"], correct: 1 },
+            { question: "ऊंट में 'सर्रा' बीमारी किसके कारण होती है?", options: ["प्रोटोजोआ", "वायरस", "बैक्टीरिया", "फंगस"], correct: 0 },
+            { question: "ऊंट का गर्भकाल लगभग कितने दिनों का होता है?", options: ["280 दिन", "310 दिन", "390-410 दिन", "500 दिन"], correct: 2 },
+            { question: "ऊंट बिना पानी पिए कितने दिन तक रह सकता है?", options: ["1-2 दिन", "7-10 दिन या अधिक", "1 महीना", "6 महीने"], correct: 1 },
+            { question: "भारतीय ऊंटों में कितने प्रतिशत बीकानेरी ऊंट पाए जाते हैं?", options: ["10%", "20%", "लगभग 50%", "90%"], correct: 2 },
+            { question: "राष्ट्रीय उष्ट्र अनुसंधान केंद्र कहाँ स्थित है?", options: ["जयपुर", "जैसलमेर", "जोहड़बीड़ (बीकानेर)", "बाड़मेर"], correct: 2 },
+            { question: "थनैला रोग पशु के किस अंग को प्रभावित करता है?", options: ["आंख", "खुर", "अयन (Udder) और थनों को", "कान"], correct: 2 },
+            { question: "पशुओं में 'गलाघोंटू' बीमारी किस मौसम में अधिक फैलती है?", options: ["सर्दी", "गर्मी", "बारिश (Monsoon)", "बसंत"], correct: 2 },
+            { question: "पशुओं को 24 घंटे में दिया जाने वाला कुल आहार क्या कहलाता है?", options: ["खुराक", "राशन", "चारा", "दाना"], correct: 1 },
+            { question: "अच्छी साइलेज में नमी की मात्रा लगभग कितनी होनी चाहिए?", options: ["10-20%", "30-40%", "60-70%", "90%"], correct: 2 },
+            { question: "हे (Hay) बनाने के लिए सबसे उपयुक्त फसल कौनसी है?", options: ["रिजका और बरसीम", "मक्का", "ज्वार", "बाजरा"], correct: 0 },
+            { question: "मुर्गियों में होने वाली 'रानीखेत' बीमारी किससे होती है?", options: ["जीवाणु", "परजीवी", "वायरस", "फंगस"], correct: 2 },
+            { question: "पशु के सींग हटाने की सबसे उपयुक्त उम्र क्या है?", options: ["1-2 सप्ताह के भीतर", "6 महीने", "1 साल", "2 साल"], correct: 0 },
+            { question: "दुग्ध ज्वर किस तत्व की कमी से होता है?", options: ["फास्फोरस", "कैल्शियम", "लोहा", "विटामिन A"], correct: 1 },
+            { question: "पशुओं की आयु ज्ञात करने का सबसे सटीक तरीका क्या है?", options: ["सींग देखकर", "शरीर देखकर", "दांत देखकर", "खुर देखकर"], correct: 2 },
+            { question: "गाय और भैंस की नाड़ी गति कहाँ से मापी जाती है?", options: ["कान से", "पूंछ के पास (कॉक्सीजियल धमनी)", "पैर से", "गर्दन से"], correct: 1 },
+            { question: "कीटों के शरीर को मुख्य रूप से कितने भागों में बांटा जाता है?", options: ["दो", "तीन (सिर, वक्ष, उदर)", "चार", "पांच"], correct: 1 },
+            { question: "टिड्डे के श्वसन तंत्र को क्या कहते हैं?", options: ["फेफड़े", "गिल्स", "श्वासनलिका", "त्वचा"], correct: 2 },
+            { question: "टिड्डे में किस प्रकार का कायांतरण पाया जाता है?", options: ["पूर्ण", "अपूर्ण", "कोई नहीं", "दोनों"], correct: 1 },
+            { question: "टिड्डी और टिड्डे में मुख्य अंतर क्या है?", options: ["टिड्डी झुंड में उड़ती है और व्यवहार बदलती है", "टिड्डी छोटी होती है", "टिड्डा नुकसान नहीं करता", "दोनों एक ही हैं"], correct: 0 },
+            { question: "सफेद लट मुख्य रूप से किस फसल का नाशक कीट है?", options: ["धान", "मूंगफली", "कपास", "गेहूं"], correct: 1 },
+            { question: "दीमक से बचाव के लिए खेतों में किसका प्रयोग करते हैं?", options: ["यूरिया", "क्लोरपायरीफॉस", "2,4-D", "सल्फर"], correct: 1 },
+            { question: "मधुमक्खी पालन को वैज्ञानिक भाषा में क्या कहते हैं?", options: ["सेरीकल्चर", "एपीकल्चर", "पीसीकल्चर", "हॉर्टिकल्चर"], correct: 1 },
+            { question: "'माहू' कीट पौधों को कैसे नुकसान पहुंचाता है?", options: ["पत्तियां खाकर", "कोमल भागों का रस चूसकर", "जड़ काटकर", "तना छेदकर"], correct: 1 },
+            { question: "कीट विज्ञान में किसका अध्ययन किया जाता है?", options: ["पक्षियों का", "जानवरों का", "कीटों का", "मिट्टी का"], correct: 2 },
+            { question: "टिड्डे के वक्ष पर कितनी जोड़ी टांगें पाई जाती हैं?", options: ["एक", "दो", "तीन जोड़ी", "चार"], correct: 2 },
+            { question: "कोशिका का शक्तिगृह किसे कहते हैं?", options: ["राइबोसोम", "माइटोकॉन्ड्रिया", "केंद्रक", "लाइसोसोम"], correct: 1 },
+            { question: "'ग्रीन हाउस प्रभाव' के लिए मुख्य रूप से कौनसी गैस उत्तरदायी है?", options: ["ऑक्सीजन", "नाइट्रोजन", "कार्बन डाइऑक्साइड (CO2)", "आर्गन"], correct: 2 },
+            { question: "प्रकाश संश्लेषण में पौधे कौनसी गैस ग्रहण करते हैं?", options: ["ऑक्सीजन", "नाइट्रोजन", "कार्बन डाइऑक्साइड", "हाइड्रोजन"], correct: 2 },
+            { question: "अधिकांश बीजों के अंकुरण के लिए इनमें से क्या आवश्यक नहीं है?", options: ["नमी", "हवा", "उचित तापमान", "प्रकाश (Light)"], correct: 3 },
+            { question: "आनुवंशिकी के जनक कौन कहलाते हैं?", options: ["चार्ल्स डार्विन", "ग्रेगर जॉन मेंडल", "रॉबर्ट हुक", "लुई पाश्चर"], correct: 1 },
+            { question: "'सुनहरा चावल' में किस विटामिन की अधिकता होती है?", options: ["विटामिन B", "विटामिन C", "विटामिन A", "विटामिन D"], correct: 2 },
+            { question: "प्याज में तीखापन किसके कारण होता है?", options: ["कैरोटीन", "लाइकोपीन", "एलाइल प्रोपाइल डाईसल्फाइड", "कैप्सेसिन"], correct: 2 },
+            { question: "टमाटर का लाल रंग किस वर्णक के कारण होता है?", options: ["एंथोसायनिन", "लाइकोपीन", "कैरोटीन", "जैन्थोफिल"], correct: 1 },
+            { question: "फलों की खेती के अध्ययन को क्या कहते हैं?", options: ["ओलेरीकल्चर", "पोमोलॉजी", "फ्लोरीकल्चर", "विटीकल्चर"], correct: 1 },
+            { question: "भारत में 'हरित क्रांति' का संबंध किससे है?", options: ["दुग्ध उत्पादन", "मत्स्य उत्पादन", "खाद्यान्न उत्पादन", "तिलहन उत्पादन"], correct: 2 },
+            { question: "राजस्थान में 'CAZRI' कहाँ स्थित है?", options: ["जयपुर", "बीकानेर", "जोधपुर", "उदयपुर"], correct: 2 },
+            { question: "'बूँद-बूँद सिंचाई' प्रणाली किस देश से विकसित हुई थी?", options: ["अमेरिका", "भारत", "इज़राइल", "चीन"], correct: 2 },
+            { question: "सोयाबीन में प्रोटीन की मात्रा लगभग कितनी प्रतिशत होती है?", options: ["20%", "30%", "40-42%", "60%"], correct: 2 },
+            { question: "'गरीब की गाय' किस पशु को कहा जाता है?", options: ["भैंस", "बकरी", "भेड़", "ऊंट"], correct: 1 },
+            { question: "भारत में 'श्वेत क्रांति' के जनक कौन हैं?", options: ["एम.एस. स्वामीनाथन", "डॉ. वर्गीज कुरियन", "नॉर्मन बोरलॉग", "आर.एस. परोदा"], correct: 1 },
+            { question: "चने की फसल का सबसे प्रमुख कीट कौन सा है?", options: ["फली छेदक", "सफेद मक्खी", "तना छेदक", "माहू"], correct: 0 },
+            { question: "आम की 'बीजरहित' किस्म कौनसी है?", options: ["दशहरी", "नीलम", "सिंधु", "आम्रपाली"], correct: 2 },
+            { question: "मूंगफली में 'टिक्का रोग' मुख्य रूप से किसके कारण होता है?", options: ["जीवाणु", "कवक (Fungi)", "विषाणु", "कीट"], correct: 1 },
+            { question: "आलू वानस्पतिक रूप से पौधे का कौन सा भाग है?", options: ["जड़", "तना (रूपांतरित तना)", "पत्ती", "फूल"], correct: 1 },
+            { question: "राजस्थान में माध्यमिक शिक्षा बोर्ड का मुख्यालय कहाँ स्थित है?", options: ["जयपुर", "उदयपुर", "बीकानेर", "अजमेर"], correct: 3 }
+        ];
+
+        // --- 5. QUIZ LOGIC (Limit & Shuffle) ---
+        let currentQuizData = []; 
+        let currentQuestionIndex = 0;
+        let quizScore = 0;
+
+        const quizSetupBox = document.getElementById("quiz-setup");
+        const quizContainer = document.getElementById("quiz-container");
+        const questionEl = document.getElementById("question-text");
+        const optionsBox = document.getElementById("options-box");
+        const nextBtn = document.getElementById("next-btn");
+        const quizScoreEl = document.getElementById("quiz-score");
+        const qCountEl = document.getElementById("question-count");
+
+        function shuffleArray(array) {
+            let shuffled = array.slice();
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function startCustomQuiz() {
+            let limit = parseInt(document.getElementById("question-limit").value);
+            currentQuizData = shuffleArray(quizData).slice(0, limit);
+            quizSetupBox.style.display = "none";
+            quizContainer.style.display = "block";
+            currentQuestionIndex = 0;
+            quizScore = 0;
+            quizScoreEl.innerText = `Score: ${quizScore}`;
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            optionsBox.innerHTML = "";
+            nextBtn.style.display = "none";
+            let currentQ = currentQuizData[currentQuestionIndex];
+            qCountEl.innerText = `Question: ${currentQuestionIndex + 1} / ${currentQuizData.length}`;
+            questionEl.innerText = currentQ.question;
+
+            currentQ.options.forEach((opt, index) => {
+                let btn = document.createElement("button");
+                btn.innerText = opt;
+                btn.classList.add("option-btn");
+                btn.onclick = () => checkAnswer(index, btn);
+                optionsBox.appendChild(btn);
+            });
+        }
+
+        function checkAnswer(selectedIndex, btn) {
+            let currentQ = currentQuizData[currentQuestionIndex];
+            let allBtns = optionsBox.children;
+
+            for(let i=0; i<allBtns.length; i++) {
+                allBtns[i].disabled = true;
+                if(i === currentQ.correct) {
+                    allBtns[i].classList.add("correct");
+                }
+            }
+
+            if(selectedIndex === currentQ.correct) {
+                quizScore++;
+                quizScoreEl.innerText = `Score: ${quizScore}`;
+            } else {
+                btn.classList.add("wrong");
+            }
+
+            if(currentQuestionIndex < currentQuizData.length - 1) {
+                nextBtn.style.display = "block";
+                nextBtn.innerText = "अगला सवाल ➡️";
+            } else {
+                nextBtn.style.display = "block";
+                nextBtn.innerText = "🔄 नया टेस्ट दें";
+            }
+        }
+
+        function nextQuestion() {
+            if(currentQuestionIndex < currentQuizData.length - 1) {
+                currentQuestionIndex++;
+                loadQuestion();
+            } else {
+                quizContainer.style.display = "none";
+                quizSetupBox.style.display = "block";
+                window.scrollTo(0, 0); 
+            }
+        }
+
+        // --- 6. SHARE WEBSITE LOGIC ---
+        function shareWebsite() {
+            if (navigator.share) {
+                navigator.share({
+                    title: 'Agri-Gaming & Mega Quiz Hub',
+                    text: 'Doston! Maine JET/ICAR ki taiyari aur game khelne ke liye ek shandar website banayi hai. Apna test score check karein!',
+                    url: window.location.href
+                }).then(() => {
+                    console.log('Thanks for sharing!');
+                }).catch(console.error);
+            } else {
+                // Agar computer ka browser share support nahi karta
+                alert("Link copy ho gaya hai! Doston ko paste karke bhejein: \n" + window.location.href);
+            }
+        }
+    </script>
+</body>
+</html>
+x
